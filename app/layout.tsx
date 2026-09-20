@@ -1,3 +1,6 @@
+// Refresh published Sanity content without requiring a new deployment.
+export const revalidate = 60
+
 import type {Metadata} from 'next'
 import './globals.css'
 
