@@ -304,6 +304,14 @@ export default async function BlogPost({
      IMAGE URLS
   ========================= */
 
+  // The first body image may already be displayed as the article cover.
+  const body = post.body ?? []
+  const firstImageIndex = body.findIndex((block) => block._type === 'image')
+  const coverRef = post.mainImage?.asset?._ref
+  const articleBody = body.filter((block, index) =>
+    !(coverRef && index === firstImageIndex && block.asset?._ref === coverRef)
+  )
+
   const saveImage =
     post.mainImage?.asset
       ? urlFor(post.mainImage)
@@ -601,7 +609,7 @@ export default async function BlogPost({
             <div>
 
               <PortableText
-                value={post.body}
+                value={articleBody}
                 components={
                   portableTextComponents
                 }
