@@ -13,6 +13,18 @@ type PageProps = {
   }>
 }
 
+type SanityImageAsset = {
+  _ref?: string
+  _id?: string
+}
+
+type SanityImage = {
+  _type?: 'image'
+  asset?: SanityImageAsset
+  alt?: string
+  caption?: string
+}
+
 type Post = {
   title: string
   seoTitle?: string
@@ -23,12 +35,7 @@ type Post = {
     name?: string
   }
 
-  mainImage?: {
-    asset?: {
-      _ref: string
-    }
-    alt?: string
-  }
+  mainImage?: SanityImage
 
   categories?: string[]
 
@@ -166,7 +173,7 @@ const portableTextComponents = {
     image: ({
       value,
     }: {
-      value: any
+      value: SanityImage
     }) => {
       if (!value?.asset) {
         return null
@@ -301,21 +308,53 @@ export default async function BlogPost({
   }
 
   /* =========================
-     REMOVE FIRST BODY IMAGE
-     WHEN FEATURED IMAGE EXISTS
+     REMOVE ONLY THE EXACT
+     FEATURED IMAGE DUPLICATE
+
+     IMPORTANT:
+     Other body images are kept.
   ========================= */
 
-  let firstBodyImageSkipped = false
+  const mainImageRef =
+    post.mainImage?.asset?._ref
+
+  const mainImageId =
+    post.mainImage?.asset?._id
+
+  let duplicateFeaturedImageRemoved = false
 
   const filteredBody =
     post.body?.filter((block) => {
       if (
-        post.mainImage?.asset &&
-        !firstBodyImageSkipped &&
-        block?._type === 'image' &&
-        block?.asset
+        duplicateFeaturedImageRemoved ||
+        block?._type !== 'image' ||
+        !block?.asset
       ) {
-        firstBodyImageSkipped = true
+        return true
+      }
+
+      const bodyImageRef =
+        block.asset?._ref
+
+      const bodyImageId =
+        block.asset?._id
+
+      const sameByRef =
+        Boolean(
+          mainImageRef &&
+          bodyImageRef &&
+          mainImageRef === bodyImageRef
+        )
+
+      const sameById =
+        Boolean(
+          mainImageId &&
+          bodyImageId &&
+          mainImageId === bodyImageId
+        )
+
+      if (sameByRef || sameById) {
+        duplicateFeaturedImageRemoved = true
         return false
       }
 
@@ -416,9 +455,7 @@ export default async function BlogPost({
   return (
     <main className="min-h-screen bg-[#050505] pb-28 text-white lg:pb-0">
 
-      {/* =========================
-          JSON-LD
-      ========================= */}
+      {/* JSON-LD */}
 
       <script
         type="application/ld+json"
@@ -433,9 +470,7 @@ export default async function BlogPost({
         }}
       />
 
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <header className="sticky top-0 z-50 w-full border-b border-white/[0.07] bg-black/95 backdrop-blur-xl">
 
@@ -451,8 +486,6 @@ export default async function BlogPost({
               className="h-auto w-[185px] max-w-full sm:w-[220px] lg:w-[245px]"
             />
           </Link>
-
-          {/* DESKTOP NAV */}
 
           <nav className="hidden items-center gap-8 text-sm font-semibold text-zinc-300 lg:flex">
 
@@ -492,9 +525,7 @@ export default async function BlogPost({
 
       </header>
 
-      {/* =========================
-          ARTICLE
-      ========================= */}
+      {/* ARTICLE */}
 
       <article>
 
@@ -504,21 +535,15 @@ export default async function BlogPost({
 
           <div className="mx-auto max-w-4xl px-4 pb-9 pt-9 sm:px-6 sm:pb-12 sm:pt-12">
 
-            {/* CATEGORY */}
-
             {post.categories?.[0] && (
               <span className="inline-flex rounded-full border border-red-500/30 bg-red-950/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-red-400">
                 {post.categories[0]}
               </span>
             )}
 
-            {/* TITLE */}
-
             <h1 className="mt-5 text-[36px] font-black leading-[1.08] tracking-[-0.035em] text-white sm:text-5xl lg:text-[58px]">
               {post.title}
             </h1>
-
-            {/* AUTHOR + DATE */}
 
             <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-500 sm:text-sm">
 
@@ -546,8 +571,6 @@ export default async function BlogPost({
 
             </div>
 
-            {/* SAVE BUTTON */}
-
             <div className="mt-6">
 
               <SaveButton
@@ -568,9 +591,7 @@ export default async function BlogPost({
 
         </section>
 
-        {/* =========================
-            FEATURED IMAGE
-        ========================= */}
+        {/* FEATURED IMAGE */}
 
         {post.mainImage?.asset && (
           <section className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-10">
@@ -598,13 +619,9 @@ export default async function BlogPost({
           </section>
         )}
 
-        {/* =========================
-            ARTICLE BODY
-        ========================= */}
+        {/* ARTICLE BODY */}
 
         <section className="mx-auto max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pb-20 sm:pt-10">
-
-          {/* DESCRIPTION */}
 
           {post.metaDescription && (
             <div className="mb-9 rounded-r-2xl border-l-4 border-red-500 bg-red-950/10 px-5 py-4">
@@ -615,8 +632,6 @@ export default async function BlogPost({
 
             </div>
           )}
-
-          {/* CONTENT */}
 
           {filteredBody.length ? (
 
@@ -638,10 +653,6 @@ export default async function BlogPost({
             </div>
 
           )}
-
-          {/* =========================
-              BACK HOME
-          ========================= */}
 
           <div className="mt-12 border-t border-white/[0.08] pt-8">
 
@@ -673,9 +684,7 @@ export default async function BlogPost({
 
       </article>
 
-      {/* =========================
-          DESKTOP FOOTER
-      ========================= */}
+      {/* DESKTOP FOOTER */}
 
       <footer className="hidden border-t border-white/[0.08] bg-black lg:block">
 
@@ -704,8 +713,6 @@ export default async function BlogPost({
         </div>
 
       </footer>
-
-      {/* MOBILE NAV */}
 
       <MobileBottomNav />
 
