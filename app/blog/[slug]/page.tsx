@@ -301,20 +301,21 @@ export default async function BlogPost({
   }
 
   /* =========================
-     REMOVE DUPLICATE
-     FEATURED IMAGE FROM BODY
+     REMOVE FIRST BODY IMAGE
+     WHEN FEATURED IMAGE EXISTS
   ========================= */
 
-  const mainImageRef =
-    post.mainImage?.asset?._ref
+  let firstBodyImageSkipped = false
 
   const filteredBody =
     post.body?.filter((block) => {
       if (
+        post.mainImage?.asset &&
+        !firstBodyImageSkipped &&
         block?._type === 'image' &&
-        mainImageRef &&
-        block?.asset?._ref === mainImageRef
+        block?.asset
       ) {
+        firstBodyImageSkipped = true
         return false
       }
 
