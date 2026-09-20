@@ -301,16 +301,29 @@ export default async function BlogPost({
   }
 
   /* =========================
-     IMAGE URLS
+     REMOVE DUPLICATE
+     FEATURED IMAGE FROM BODY
   ========================= */
 
-  // The first body image may already be displayed as the article cover.
-  const body = post.body ?? []
-  const firstImageIndex = body.findIndex((block) => block._type === 'image')
-  const coverRef = post.mainImage?.asset?._ref
-  const articleBody = body.filter((block, index) =>
-    !(coverRef && index === firstImageIndex && block.asset?._ref === coverRef)
-  )
+  const mainImageRef =
+    post.mainImage?.asset?._ref
+
+  const filteredBody =
+    post.body?.filter((block) => {
+      if (
+        block?._type === 'image' &&
+        mainImageRef &&
+        block?.asset?._ref === mainImageRef
+      ) {
+        return false
+      }
+
+      return true
+    }) || []
+
+  /* =========================
+     IMAGE URLS
+  ========================= */
 
   const saveImage =
     post.mainImage?.asset
@@ -604,12 +617,12 @@ export default async function BlogPost({
 
           {/* CONTENT */}
 
-          {post.body?.length ? (
+          {filteredBody.length ? (
 
             <div>
 
               <PortableText
-                value={articleBody}
+                value={filteredBody}
                 components={
                   portableTextComponents
                 }
