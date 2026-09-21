@@ -1,11 +1,8 @@
-// Refresh published Sanity content without requiring a new deployment.
-export const revalidate = 60
-
 import type {Metadata} from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://celebspike.com'),
+  metadataBase: new URL('https://www.celebspike.com'),
 
   title: {
     default: 'Celebspike | Celebrity News & Trending Stories',
@@ -13,7 +10,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    'Celebspike brings you the latest celebrity news, entertainment stories and trending updates.',
+    'Celebspike brings you the latest celebrity news, entertainment updates, trending stories and exclusive coverage.',
 
   alternates: {
     canonical: '/',
@@ -25,20 +22,26 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
     },
   },
 
   openGraph: {
     type: 'website',
+    url: 'https://www.celebspike.com',
     siteName: 'Celebspike',
     title: 'Celebspike | Celebrity News & Trending Stories',
     description:
-      'Latest celebrity news, entertainment stories and trending updates.',
-    url: 'https://celebspike.com',
+      'Celebspike brings you the latest celebrity news, entertainment updates, trending stories and exclusive coverage.',
   },
 
   twitter: {
     card: 'summary_large_image',
+    title: 'Celebspike | Celebrity News & Trending Stories',
+    description:
+      'Celebspike brings you the latest celebrity news, entertainment updates, trending stories and exclusive coverage.',
   },
 }
 

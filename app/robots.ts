@@ -7,7 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
     },
 
-    sitemap: 'https://celebspike.com/sitemap.xml',
-    host: 'https://celebspike.com',
+    sitemap: 'https://www.celebspike.com/sitemap.xml',
   }
 }

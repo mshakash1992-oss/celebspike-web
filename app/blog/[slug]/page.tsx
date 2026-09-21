@@ -382,7 +382,7 @@ export default async function BlogPost({
       : undefined
 
   const articleUrl =
-    `https://celebspike.com/blog/${slug}`
+    `https://www.celebspike.com/blog/${slug}`
 
   /* =========================
      ARTICLE JSON-LD
@@ -448,7 +448,7 @@ export default async function BlogPost({
         'CelebSpike',
 
       url:
-        'https://celebspike.com',
+        'https://www.celebspike.com',
     },
   }
 
