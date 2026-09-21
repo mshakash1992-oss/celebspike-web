@@ -308,11 +308,8 @@ export default async function BlogPost({
   }
 
   /* =========================
-     REMOVE ONLY THE EXACT
+     REMOVE ONLY EXACT
      FEATURED IMAGE DUPLICATE
-
-     IMPORTANT:
-     Other body images are kept.
   ========================= */
 
   const mainImageRef =
@@ -591,7 +588,10 @@ export default async function BlogPost({
 
         </section>
 
-        {/* FEATURED IMAGE */}
+        {/* =========================
+            FEATURED IMAGE
+            FULL IMAGE — NO CROP
+        ========================= */}
 
         {post.mainImage?.asset && (
           <section className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-10">
@@ -600,18 +600,15 @@ export default async function BlogPost({
 
               <img
                 src={
-                  urlFor(
-                    post.mainImage
-                  )
+                  urlFor(post.mainImage)
                     .width(1600)
-                    .height(1000)
                     .url()
                 }
                 alt={
                   post.mainImage.alt ||
                   post.title
                 }
-                className="h-auto w-full object-cover"
+                className="block h-auto w-full object-contain"
               />
 
             </div>
