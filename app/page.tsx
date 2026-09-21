@@ -3,23 +3,33 @@ import {client, urlFor} from '@/lib/sanity'
 import HeaderActions from './HeaderActions'
 import MobileBottomNav from './MobileBottomNav'
 import CategoryTabs from './CategoryTabs'
+import HeroCarousel from './HeroCarousel'
 
 type Post = {
   _id: string
   title: string
+
   slug: {
     current: string
   }
+
   publishedAt?: string
   metaDescription?: string
+
   mainImage?: {
     asset?: {
       _ref: string
     }
+
     alt?: string
   }
+
   categories?: string[]
 }
+
+/* =========================
+   GET POSTS
+========================= */
 
 async function getPosts(): Promise<Post[]> {
   return client.fetch(`
@@ -35,50 +45,118 @@ async function getPosts(): Promise<Post[]> {
   `)
 }
 
+/* =========================
+   FORMAT DATE
+========================= */
+
 function formatDate(date?: string) {
   if (!date) return ''
 
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  return new Date(date).toLocaleDateString(
+    'en-US',
+    {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }
+  )
 }
+
+/* =========================
+   HOME PAGE
+========================= */
 
 export default async function Home() {
   const posts = await getPosts()
 
-  const featured = posts[0]
-  const trendingPosts = posts.slice(0, 3)
-  const latestPosts = posts.slice(1)
+  /* =========================
+     HERO SLIDER
+     Latest 4 posts
+  ========================= */
 
-  const categoryPosts = posts.map((post) => ({
-    _id: post._id,
-    title: post.title,
-    slug: post.slug,
-    publishedAt: post.publishedAt,
-    metaDescription: post.metaDescription,
-    categories: post.categories,
+  const featuredPosts = posts.slice(0, 4)
 
-    imageUrl: post.mainImage?.asset
-      ? urlFor(post.mainImage)
-          .width(900)
-          .height(560)
-          .url()
-      : undefined,
+  const heroPosts = featuredPosts.map(
+    (post) => ({
+      _id: post._id,
 
-    imageAlt: post.mainImage?.alt,
-  }))
+      title: post.title,
+
+      slug: post.slug.current,
+
+      publishedAt:
+        post.publishedAt,
+
+      imageUrl:
+        post.mainImage?.asset
+          ? urlFor(post.mainImage)
+              .width(1400)
+              .height(950)
+              .url()
+          : undefined,
+
+      imageAlt:
+        post.mainImage?.alt,
+    })
+  )
+
+  /* =========================
+     TRENDING + LATEST
+  ========================= */
+
+  const trendingPosts =
+    posts.slice(0, 3)
+
+  const latestPosts =
+    posts.slice(1)
+
+  /* =========================
+     CATEGORY POSTS
+  ========================= */
+
+  const categoryPosts = posts.map(
+    (post) => ({
+      _id: post._id,
+
+      title: post.title,
+
+      slug: post.slug,
+
+      publishedAt:
+        post.publishedAt,
+
+      metaDescription:
+        post.metaDescription,
+
+      categories:
+        post.categories,
+
+      imageUrl:
+        post.mainImage?.asset
+          ? urlFor(post.mainImage)
+              .width(900)
+              .height(560)
+              .url()
+          : undefined,
+
+      imageAlt:
+        post.mainImage?.alt,
+    })
+  )
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
 
-      {/* HEADER */}
+      {/* =========================
+          HEADER
+      ========================= */}
+
       <header className="sticky top-0 z-50 w-full border-b border-white/[0.07] bg-black/95 backdrop-blur-xl">
 
         <div className="mx-auto flex h-[76px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-[88px]">
 
           {/* LOGO */}
+
           <Link
             href="/"
             className="flex min-w-0 shrink items-center"
@@ -91,6 +169,7 @@ export default async function Home() {
           </Link>
 
           {/* DESKTOP NAV */}
+
           <nav className="hidden items-center gap-8 text-sm font-semibold text-zinc-300 lg:flex">
 
             <Link
@@ -124,20 +203,29 @@ export default async function Home() {
           </nav>
 
           {/* SEARCH + MOBILE MENU */}
+
           <HeaderActions />
 
         </div>
 
       </header>
 
-      {/* HERO */}
+      {/* =========================
+          HERO
+      ========================= */}
+
       <section className="relative overflow-hidden border-b border-white/[0.06]">
+
+        {/* RED BACKGROUND GLOW */}
 
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(220,0,25,0.18),transparent_35%)]" />
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 md:py-14 lg:min-h-[560px] lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
 
-          {/* HERO TEXT */}
+          {/* =========================
+              HERO TEXT
+          ========================= */}
+
           <div className="relative z-10">
 
             <div className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
@@ -153,9 +241,11 @@ export default async function Home() {
             <h1 className="max-w-3xl text-[38px] font-black leading-[1.03] tracking-[-0.04em] sm:text-5xl lg:text-[64px]">
 
               Celebrity News,
+
               <br />
 
               Trending Stories &
+
               <br />
 
               <span className="text-[#ff1734]">
@@ -196,75 +286,30 @@ export default async function Home() {
 
           </div>
 
-          {/* FEATURED POST */}
-          {featured && (
-            <div className="relative mt-2 min-w-0 lg:mt-0">
+          {/* =========================
+              WORKING HERO CAROUSEL
+          ========================= */}
 
-              <Link
-                href={`/blog/${featured.slug.current}`}
-                className="group relative block aspect-[16/11] overflow-hidden rounded-[26px] border border-white/10 bg-[#101010] shadow-2xl"
-              >
-
-                {featured.mainImage?.asset ? (
-                  <img
-                    src={
-                      urlFor(featured.mainImage)
-                        .width(1400)
-                        .height(950)
-                        .url()
-                    }
-                    alt={
-                      featured.mainImage.alt ||
-                      featured.title
-                    }
-                    className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-950 via-black to-black" />
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-
-                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
-
-                  <span className="mb-3 inline-flex rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-wider">
-                    Featured
-                  </span>
-
-                  <h2 className="max-w-2xl text-xl font-black leading-tight sm:text-2xl lg:text-3xl">
-                    {featured.title}
-                  </h2>
-
-                  {featured.publishedAt && (
-                    <p className="mt-3 text-xs text-zinc-400">
-                      {formatDate(featured.publishedAt)}
-                    </p>
-                  )}
-
-                </div>
-
-              </Link>
-
-              <div className="mt-5 flex justify-center gap-2">
-
-                <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-                <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-                <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-
-              </div>
-
-            </div>
-          )}
+          <HeroCarousel
+            posts={heroPosts}
+          />
 
         </div>
 
       </section>
 
-      {/* CATEGORY BUTTONS + RESULTS */}
-      <CategoryTabs posts={categoryPosts} />
+      {/* =========================
+          CATEGORY BUTTONS
+      ========================= */}
 
-      {/* TRENDING */}
+      <CategoryTabs
+        posts={categoryPosts}
+      />
+
+      {/* =========================
+          TRENDING
+      ========================= */}
+
       <section
         id="trending"
         className="mx-auto max-w-7xl scroll-mt-24 px-4 py-10 sm:px-6 lg:py-14"
@@ -315,82 +360,103 @@ export default async function Home() {
 
           <div className="grid gap-4 lg:grid-cols-3">
 
-            {trendingPosts.map((post, index) => (
+            {trendingPosts.map(
+              (post, index) => (
 
-              <article
-                key={post._id}
-                className="group overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#0c0c0c] to-[#080808] transition hover:border-red-500/30"
-              >
-
-                <Link
-                  href={`/blog/${post.slug.current}`}
-                  className="flex h-full"
+                <article
+                  key={post._id}
+                  className="group overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#0c0c0c] to-[#080808] transition hover:border-red-500/30"
                 >
 
-                  <div className="relative w-[38%] shrink-0 overflow-hidden bg-zinc-900 lg:w-[42%]">
+                  <Link
+                    href={`/blog/${post.slug.current}`}
+                    className="flex h-full"
+                  >
 
-                    {post.mainImage?.asset ? (
-                      <img
-                        src={
-                          urlFor(post.mainImage)
-                            .width(600)
-                            .height(500)
-                            .url()
-                        }
-                        alt={
-                          post.mainImage.alt ||
-                          post.title
-                        }
-                        className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-red-950 to-black" />
-                    )}
+                    {/* IMAGE */}
 
-                    <span className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm font-black shadow-lg">
-                      {index + 1}
-                    </span>
+                    <div className="relative w-[38%] shrink-0 overflow-hidden bg-zinc-900 lg:w-[42%]">
 
-                  </div>
+                      {post.mainImage?.asset ? (
 
-                  <div className="flex min-h-[145px] min-w-0 flex-1 flex-col justify-center p-4">
+                        <img
+                          src={
+                            urlFor(
+                              post.mainImage
+                            )
+                              .width(600)
+                              .height(500)
+                              .url()
+                          }
+                          alt={
+                            post.mainImage.alt ||
+                            post.title
+                          }
+                          className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
 
-                    {post.categories?.[0] && (
-                      <span className="mb-2 w-fit rounded-md bg-red-950/60 px-2 py-1 text-[9px] font-bold uppercase text-red-400">
-                        {post.categories[0]}
-                      </span>
-                    )}
+                      ) : (
 
-                    <h3 className="line-clamp-3 text-[15px] font-bold leading-snug sm:text-lg">
-                      {post.title}
-                    </h3>
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-950 to-black" />
 
-                    <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500 sm:text-xs">
+                      )}
 
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="h-3.5 w-3.5"
-                      >
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 2" />
-                      </svg>
-
-                      <span>
-                        {formatDate(post.publishedAt)}
+                      <span className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm font-black shadow-lg">
+                        {index + 1}
                       </span>
 
                     </div>
 
-                  </div>
+                    {/* CONTENT */}
 
-                </Link>
+                    <div className="flex min-h-[145px] min-w-0 flex-1 flex-col justify-center p-4">
 
-              </article>
+                      {post.categories?.[0] && (
 
-            ))}
+                        <span className="mb-2 w-fit rounded-md bg-red-950/60 px-2 py-1 text-[9px] font-bold uppercase text-red-400">
+                          {post.categories[0]}
+                        </span>
+
+                      )}
+
+                      <h3 className="line-clamp-3 text-[15px] font-bold leading-snug sm:text-lg">
+                        {post.title}
+                      </h3>
+
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500 sm:text-xs">
+
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="h-3.5 w-3.5"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                          />
+
+                          <path d="M12 7v5l3 2" />
+                        </svg>
+
+                        <span>
+                          {formatDate(
+                            post.publishedAt
+                          )}
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </Link>
+
+                </article>
+
+              )
+            )}
 
           </div>
 
@@ -398,7 +464,10 @@ export default async function Home() {
 
       </section>
 
-      {/* LATEST */}
+      {/* =========================
+          LATEST
+      ========================= */}
+
       <section
         id="latest"
         className="mx-auto max-w-7xl scroll-mt-24 px-4 pb-28 pt-3 sm:px-6 lg:pb-20"
@@ -426,91 +495,111 @@ export default async function Home() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-            {latestPosts.map((post) => (
+            {latestPosts.map(
+              (post) => (
 
-              <article
-                key={post._id}
-                className="group overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0b0b0b] transition hover:-translate-y-1 hover:border-red-500/30"
-              >
+                <article
+                  key={post._id}
+                  className="group overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0b0b0b] transition hover:-translate-y-1 hover:border-red-500/30"
+                >
 
-                <Link href={`/blog/${post.slug.current}`}>
+                  <Link
+                    href={`/blog/${post.slug.current}`}
+                  >
 
-                  <div className="relative aspect-[16/10] overflow-hidden bg-zinc-900">
+                    {/* IMAGE */}
 
-                    {post.mainImage?.asset ? (
-                      <img
-                        src={
-                          urlFor(post.mainImage)
-                            .width(900)
-                            .height(560)
-                            .url()
-                        }
-                        alt={
-                          post.mainImage.alt ||
-                          post.title
-                        }
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-red-950 to-black text-sm font-bold text-zinc-600">
-                        CELEBSPIKE
-                      </div>
-                    )}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-zinc-900">
 
-                  </div>
+                      {post.mainImage?.asset ? (
 
-                  <div className="p-5">
+                        <img
+                          src={
+                            urlFor(
+                              post.mainImage
+                            )
+                              .width(900)
+                              .height(560)
+                              .url()
+                          }
+                          alt={
+                            post.mainImage.alt ||
+                            post.title
+                          }
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
 
-                    {post.categories?.[0] && (
-                      <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-red-500">
-                        {post.categories[0]}
-                      </p>
-                    )}
+                      ) : (
 
-                    <h3 className="text-lg font-bold leading-snug transition group-hover:text-red-400">
-                      {post.title}
-                    </h3>
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-red-950 to-black text-sm font-bold text-zinc-600">
+                          CELEBSPIKE
+                        </div>
 
-                    {post.metaDescription && (
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-500">
-                        {post.metaDescription}
-                      </p>
-                    )}
-
-                    <div className="mt-5 flex items-center justify-between">
-
-                      <span className="text-[11px] text-zinc-600">
-                        {formatDate(post.publishedAt)}
-                      </span>
-
-                      <span className="flex items-center gap-1 text-xs font-bold text-red-500">
-
-                        Read
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-3.5 w-3.5"
-                        >
-                          <path d="M5 12h14" />
-                          <path d="m13 6 6 6-6 6" />
-                        </svg>
-
-                      </span>
+                      )}
 
                     </div>
 
-                  </div>
+                    {/* CONTENT */}
 
-                </Link>
+                    <div className="p-5">
 
-              </article>
+                      {post.categories?.[0] && (
 
-            ))}
+                        <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-red-500">
+                          {post.categories[0]}
+                        </p>
+
+                      )}
+
+                      <h3 className="text-lg font-bold leading-snug transition group-hover:text-red-400">
+                        {post.title}
+                      </h3>
+
+                      {post.metaDescription && (
+
+                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-500">
+                          {post.metaDescription}
+                        </p>
+
+                      )}
+
+                      <div className="mt-5 flex items-center justify-between">
+
+                        <span className="text-[11px] text-zinc-600">
+                          {formatDate(
+                            post.publishedAt
+                          )}
+                        </span>
+
+                        <span className="flex items-center gap-1 text-xs font-bold text-red-500">
+
+                          Read
+
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-3.5 w-3.5"
+                          >
+                            <path d="M5 12h14" />
+                            <path d="m13 6 6 6-6 6" />
+                          </svg>
+
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </Link>
+
+                </article>
+
+              )
+            )}
 
           </div>
 
@@ -518,7 +607,10 @@ export default async function Home() {
 
       </section>
 
-      {/* DESKTOP FOOTER */}
+      {/* =========================
+          DESKTOP FOOTER
+      ========================= */}
+
       <footer className="hidden border-t border-white/[0.08] bg-black lg:block">
 
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-10">
@@ -545,7 +637,10 @@ export default async function Home() {
 
       </footer>
 
-      {/* MOBILE BOTTOM NAV */}
+      {/* =========================
+          MOBILE BOTTOM NAV
+      ========================= */}
+
       <MobileBottomNav />
 
     </main>
