@@ -186,9 +186,18 @@ const portableTextComponents = {
             src={
               urlFor(value)
                 .width(1200)
+                .auto('format')
                 .url()
             }
+            srcSet={[
+              `${urlFor(value).width(480).auto('format').url()} 480w`,
+              `${urlFor(value).width(768).auto('format').url()} 768w`,
+              `${urlFor(value).width(1200).auto('format').url()} 1200w`,
+            ].join(', ')}
+            sizes="(max-width: 768px) calc(100vw - 32px), 768px"
             alt={value.alt || ''}
+            loading="lazy"
+            decoding="async"
             className="h-auto w-full rounded-[22px] border border-white/[0.08]"
           />
 
@@ -601,13 +610,24 @@ export default async function BlogPost({
               <img
                 src={
                   urlFor(post.mainImage)
-                    .width(1600)
+                    .width(1200)
+                    .auto('format')
                     .url()
                 }
+                srcSet={[
+                  `${urlFor(post.mainImage).width(480).auto('format').url()} 480w`,
+                  `${urlFor(post.mainImage).width(768).auto('format').url()} 768w`,
+                  `${urlFor(post.mainImage).width(1200).auto('format').url()} 1200w`,
+                  `${urlFor(post.mainImage).width(1600).auto('format').url()} 1600w`,
+                ].join(', ')}
+                sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(100vw - 48px), 1024px"
                 alt={
                   post.mainImage.alt ||
                   post.title
                 }
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="block h-auto w-full object-contain"
               />
 
