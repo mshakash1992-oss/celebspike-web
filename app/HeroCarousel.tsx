@@ -13,6 +13,7 @@ type HeroPost = {
   slug: string
   publishedAt?: string
   imageUrl?: string
+  imageSrcSet?: string
   imageAlt?: string
 }
 
@@ -36,17 +37,9 @@ function formatDate(date?: string) {
 export default function HeroCarousel({
   posts,
 }: HeroCarouselProps) {
-  const [activeIndex, setActiveIndex] =
-    useState(0)
-
-  const touchStartX = useRef<number | null>(
-    null
-  )
-
-  const touchEndX = useRef<number | null>(
-    null
-  )
-
+  const [activeIndex, setActiveIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
   const totalSlides = posts.length
 
   useEffect(() => {
@@ -54,74 +47,51 @@ export default function HeroCarousel({
 
     const timer = window.setInterval(() => {
       setActiveIndex((current) =>
-        current === totalSlides - 1
-          ? 0
-          : current + 1
+        current === totalSlides - 1 ? 0 : current + 1
       )
     }, 5000)
 
-    return () => {
-      window.clearInterval(timer)
-    }
+    return () => window.clearInterval(timer)
   }, [totalSlides])
 
-  if (!posts.length) {
-    return null
-  }
+  if (!posts.length) return null
 
   const previousSlide = () => {
     setActiveIndex((current) =>
-      current === 0
-        ? totalSlides - 1
-        : current - 1
+      current === 0 ? totalSlides - 1 : current - 1
     )
   }
 
   const nextSlide = () => {
     setActiveIndex((current) =>
-      current === totalSlides - 1
-        ? 0
-        : current + 1
+      current === totalSlides - 1 ? 0 : current + 1
     )
   }
 
   const handleTouchStart = (
     event: React.TouchEvent<HTMLDivElement>
   ) => {
-    touchStartX.current =
-      event.targetTouches[0].clientX
-
+    touchStartX.current = event.targetTouches[0].clientX
     touchEndX.current = null
   }
 
   const handleTouchMove = (
     event: React.TouchEvent<HTMLDivElement>
   ) => {
-    touchEndX.current =
-      event.targetTouches[0].clientX
+    touchEndX.current = event.targetTouches[0].clientX
   }
 
   const handleTouchEnd = () => {
     if (
       touchStartX.current === null ||
       touchEndX.current === null
-    ) {
-      return
-    }
+    ) return
 
-    const distance =
-      touchStartX.current -
-      touchEndX.current
-
+    const distance = touchStartX.current - touchEndX.current
     const minimumSwipeDistance = 50
 
-    if (distance > minimumSwipeDistance) {
-      nextSlide()
-    }
-
-    if (distance < -minimumSwipeDistance) {
-      previousSlide()
-    }
+    if (distance > minimumSwipeDistance) nextSlide()
+    if (distance < -minimumSwipeDistance) previousSlide()
 
     touchStartX.current = null
     touchEndX.current = null
@@ -134,13 +104,9 @@ export default function HeroCarousel({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* SLIDER */}
-
       <div className="relative aspect-[16/11] overflow-hidden rounded-[26px] border border-white/10 bg-[#101010] shadow-2xl">
-
         {posts.map((post, index) => {
-          const isActive =
-            index === activeIndex
+          const isActive = index === activeIndex
 
           return (
             <div
@@ -160,10 +126,12 @@ export default function HeroCarousel({
                 {post.imageUrl ? (
                   <img
                     src={post.imageUrl}
-                    alt={
-                      post.imageAlt ||
-                      post.title
-                    }
+                    srcSet={post.imageSrcSet}
+                    sizes="(max-width: 1024px) calc(100vw - 32px), 56vw"
+                    alt={post.imageAlt || post.title}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'low'}
+                    decoding="async"
                     className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
                   />
                 ) : (
@@ -173,7 +141,6 @@ export default function HeroCarousel({
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
-
                   <span className="mb-3 inline-flex rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-wider">
                     Featured
                   </span>
@@ -184,19 +151,14 @@ export default function HeroCarousel({
 
                   {post.publishedAt && (
                     <p className="mt-3 text-xs text-zinc-400">
-                      {formatDate(
-                        post.publishedAt
-                      )}
+                      {formatDate(post.publishedAt)}
                     </p>
                   )}
-
                 </div>
               </Link>
             </div>
           )
         })}
-
-        {/* PREVIOUS */}
 
         {totalSlides > 1 && (
           <button
@@ -205,21 +167,11 @@ export default function HeroCarousel({
             aria-label="Previous featured story"
             className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white opacity-80 backdrop-blur-md transition hover:bg-red-600 hover:opacity-100 sm:left-4"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
         )}
-
-        {/* NEXT */}
 
         {totalSlides > 1 && (
           <button
@@ -228,42 +180,22 @@ export default function HeroCarousel({
             aria-label="Next featured story"
             className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white opacity-80 backdrop-blur-md transition hover:bg-red-600 hover:opacity-100 sm:right-4"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
               <path d="m9 18 6-6-6-6" />
             </svg>
           </button>
         )}
-
       </div>
-
-      {/* DOTS */}
 
       {totalSlides > 1 && (
         <div className="mt-5 flex items-center justify-center gap-2">
-
           {posts.map((post, index) => (
             <button
               key={post._id}
               type="button"
-              onClick={() =>
-                setActiveIndex(index)
-              }
-              aria-label={`Show featured story ${
-                index + 1
-              }`}
-              aria-current={
-                activeIndex === index
-                  ? 'true'
-                  : undefined
-              }
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show featured story ${index + 1}`}
+              aria-current={activeIndex === index ? 'true' : undefined}
               className={`h-2.5 rounded-full transition-all duration-300 ${
                 activeIndex === index
                   ? 'w-7 bg-red-500'
@@ -271,10 +203,8 @@ export default function HeroCarousel({
               }`}
             />
           ))}
-
         </div>
       )}
-
     </div>
   )
 }

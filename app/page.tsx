@@ -90,9 +90,19 @@ export default async function Home() {
       imageUrl:
         post.mainImage?.asset
           ? urlFor(post.mainImage)
-              .width(1400)
-              .height(950)
+              .width(960)
+              .height(660)
+              .auto('format')
               .url()
+          : undefined,
+
+      imageSrcSet:
+        post.mainImage?.asset
+          ? [
+              `${urlFor(post.mainImage).width(640).height(440).auto('format').url()} 640w`,
+              `${urlFor(post.mainImage).width(960).height(660).auto('format').url()} 960w`,
+              `${urlFor(post.mainImage).width(1400).height(963).auto('format').url()} 1400w`,
+            ].join(', ')
           : undefined,
 
       imageAlt:
@@ -136,6 +146,7 @@ export default async function Home() {
           ? urlFor(post.mainImage)
               .width(900)
               .height(560)
+              .auto('format')
               .url()
           : undefined,
 
@@ -384,14 +395,17 @@ export default async function Home() {
                             urlFor(
                               post.mainImage
                             )
-                              .width(600)
-                              .height(500)
+                              .width(480)
+                              .height(400)
+                              .auto('format')
                               .url()
                           }
                           alt={
                             post.mainImage.alt ||
                             post.title
                           }
+                          loading="lazy"
+                          decoding="async"
                           className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
 
@@ -526,6 +540,8 @@ export default async function Home() {
                             post.mainImage.alt ||
                             post.title
                           }
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
 
