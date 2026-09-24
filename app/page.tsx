@@ -32,17 +32,23 @@ type Post = {
 ========================= */
 
 async function getPosts(): Promise<Post[]> {
-  return client.fetch(`
-    *[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
-      _id,
-      title,
-      slug,
-      publishedAt,
-      metaDescription,
-      mainImage,
-      "categories": categories[]->title
+  return client.fetch(
+    `
+      *[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
+        _id,
+        title,
+        slug,
+        publishedAt,
+        metaDescription,
+        mainImage,
+        "categories": categories[]->title
+      }
+    `,
+    {},
+    {
+      cache: 'no-store',
     }
-  `)
+  )
 }
 
 /* =========================
