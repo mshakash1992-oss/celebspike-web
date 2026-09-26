@@ -212,6 +212,44 @@ const portableTextComponents = {
     },
   },
 
+    downloadButton: ({
+      value,
+    }: {
+      value: {
+        text?: string
+        url?: string
+      }
+    }) => {
+      if (!value?.url) return null
+
+      return (
+        <div className="my-10 flex justify-center">
+          <a
+            href={value.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-[#f3132d] px-7 py-4 text-center text-sm font-black text-white shadow-[0_12px_40px_rgba(240,0,30,0.28)] transition duration-300 hover:-translate-y-0.5 hover:bg-red-500 hover:shadow-[0_16px_45px_rgba(240,0,30,0.38)] sm:px-9 sm:text-base"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:translate-y-0.5"
+              aria-hidden="true"
+            >
+              <path d="M12 3v12" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+            <span>{value.text || 'Download'}</span>
+          </a>
+        </div>
+      )
+    },
+
   block: {
     normal: ({
       children,
