@@ -216,7 +216,6 @@ const portableTextComponents = {
         </figure>
       )
     },
-  },
 
     downloadButton: ({
       value,
@@ -255,6 +254,7 @@ const portableTextComponents = {
         </div>
       )
     },
+  },
 
   block: {
     normal: ({
