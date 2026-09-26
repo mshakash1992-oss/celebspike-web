@@ -66,7 +66,13 @@ const postQuery = `
 async function getPost(
   slug: string
 ): Promise<Post | null> {
-  return client.fetch(postQuery, {slug})
+  return client.fetch(
+    postQuery,
+    {slug},
+    {
+      cache: 'no-store',
+    },
+  )
 }
 
 function formatDate(date?: string) {
